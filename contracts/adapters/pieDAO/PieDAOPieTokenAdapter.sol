@@ -30,6 +30,7 @@ import { TokenAdapter } from "../TokenAdapter.sol";
 interface IPieSmartPool {
     function getTokens() external view returns (address[] memory);
     function getBPool() external view returns (address);
+    function calcTokensForAmount external view returns (address);
 }
 
 
@@ -71,19 +72,14 @@ contract PieDAOPieTokenAdapter is TokenAdapter {
      * @dev Implementation of TokenAdapter interface function.
      */
     function getComponents(address token) external view override returns (Component[] memory) {
-        address[] memory underlyingTokensAddresses = IPieSmartPool(token).getTokens();
-        uint256 totalSupply = ERC20(token).totalSupply();
-        BPool bPool = BPool(IPieSmartPool(token).getBPool());
+        (address[] memory tokens, uint256[] memory amounts) = IPieSmartPool(token).calcTokensForAmount(1e18);
 
-        Component[] memory underlyingTokens = new Component[](underlyingTokensAddresses.length);
-        address underlyingToken;
-
+        Component[] memory underlyingTokens = new Component[](tokens.length);
         for (uint256 i = 0; i < underlyingTokens.length; i++) {
-            underlyingToken = underlyingTokensAddresses[i];
             underlyingTokens[i] = Component({
-                token: underlyingToken,
+                token: tokens[i],
                 tokenType: "ERC20",
-                rate: bPool.getBalance(underlyingToken) * 1e18 / totalSupply
+                rate: amounts[i]
             });
         }
 
