@@ -30,7 +30,7 @@ import { TokenAdapter } from "../TokenAdapter.sol";
 interface IPieSmartPool {
     function getTokens() external view returns (address[] memory);
     function getBPool() external view returns (address);
-    function calcTokensForAmount external view returns (address);
+    function calcTokensForAmount(uint256 amount) external view returns (address[] memory, uint256[] memory);
 }
 
 
